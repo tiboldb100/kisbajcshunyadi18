@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Private File Access</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      font-family: Arial, sans-serif;
+      color: white;
+      background:
+        radial-gradient(circle at 15% 15%, #263d62, transparent 40%),
+        linear-gradient(135deg, #101827, #080d18);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 440px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 48px;
+      margin-bottom: 22px;
+    }
+
+    .tag {
+      color: #91b9ff;
+      font-size: 11px;
+      letter-spacing: 3px;
+      font-weight: bold;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin: 16px 0;
+      letter-spacing: -1px;
+    }
+
+    .description {
+      color: #aab7ca;
+      line-height: 1.7;
+      margin-bottom: 30px;
+      font-size: 15px;
+    }
+
+    .card {
+      background: white;
+      color: #172033;
+      padding: 30px;
+      border-radius: 18px;
+      text-align: left;
+      box-shadow: 0 20px 70px #0005;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: bold;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #dce1ea;
+      border-radius: 9px;
+      font-size: 15px;
+      outline: none;
+    }
+
+    input[type="email"]:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px #2563eb20;
+    }
+
+    .consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      margin: 17px 0;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .consent input {
+      margin-top: 2px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 9px;
+      background: #2563eb;
+      color: white;
+      font-size: 15px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    #message {
+      display: none;
+      margin-top: 18px;
+      padding: 13px;
+      border-radius: 9px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .success {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .footer {
+      color: #75849a;
+      font-size: 11px;
+      margin-top: 26px;
+      letter-spacing: 1px;
+    }
+
+    @media(max-width:480px) {
+      h1 {
+        font-size: 30px;
+      }
+
+      .card {
+        padding: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="container">
+
+    <div class="logo">☁️</div>
+
+    <div class="tag">PRIVATE FILE ACCESS</div>
+
+    <h1>Your files are waiting.</h1>
+
+    <p class="description">
+      Enter your email address below and we'll send you
+      your Google Drive folder access link.
+    </p>
+
+    <form class="card" id="accessForm">
+
+      <label for="email">EMAIL ADDRESS</label>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="your@email.com"
+        required
+        autocomplete="email"
+      >
+
+      <label class="consent">
+        <input type="checkbox" id="consent" required>
+        <span>
+          I agree to receive an email containing the
+          Google Drive folder link. My email will be
+          recorded for delivery purposes.
+        </span>
+      </label>
+
+      <button type="submit" id="submitButton">
+        Send me the access link →
+      </button>
+
+      <div id="message" role="status" aria-live="polite"></div>
+
+    </form>
+
+    <div class="footer">
+      SECURE FILE DELIVERY
+    </div>
+
+  </main>
+
+  <script>
+    const SCRIPT_URL = 'YOUR_APPS_SCRIPT_WEB_APP_URL';
+
+    const form = document.getElementById('accessForm');
+    const button = document.getElementById('submitButton');
+    const message = document.getElementById('message');
+
+    form.addEventListener('submit', async function(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+
+      button.disabled = true;
+      button.textContent = 'Sending your link...';
+
+      message.style.display = 'none';
+
+      try {
+        if (SCRIPT_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL') {
+          throw new Error('Website email service has not been configured yet.');
+        }
+
+        await fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          },
+          body: new URLSearchParams({
+            email: email,
+            consent: 'true'
+          })
+        });
+
+        message.className = 'success';
+        message.textContent =
+          'Your request has been submitted! Please check your email inbox and spam folder.';
+
+        message.style.display = 'block';
+
+        button.textContent = 'Request submitted ✓';
+        form.reset();
+
+      } catch (error) {
+
+        message.className = 'error';
+        message.textContent =
+          error.message || 'Something went wrong. Please try again.';
+
+        message.style.display = 'block';
+
+        button.disabled = false;
+        button.textContent = 'Send me the access link →';
+      }
+    });
+  </script>
+
+</body>
+</html>
